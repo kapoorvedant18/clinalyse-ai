@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your dashboard · HealthReport Hub</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">HealthReport Hub</a>
+      <nav class="nav">
+        <button id="logoutBtn" class="text-btn">Log out</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="dashboard">
+      <div class="dashboard-header">
+        <div>
+          <h1 id="greeting">Hello!</h1>
+          <p class="muted">Here are your recent uploads and analysis results.</p>
+        </div>
+        <div class="profile">
+          <span class="profile-badge" aria-hidden="true">👤</span>
+          <span id="profileEmail" class="profile-email"></span>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <section class="card" aria-label="Upload report">
+          <h2>Upload a report</h2>
+          <p>Select a medical report (PDF, image, or document) and get a response.</p>
+          <form id="uploadForm" class="form" autocomplete="off">
+            <label for="reportFile">Choose file</label>
+            <input id="reportFile" name="reportFile" type="file" required />
+            <button type="submit" class="primary-btn">Upload</button>
+          </form>
+          <p class="small">Your files stay in the browser and are not shared.</p>
+        </section>
+
+        <section class="card" aria-label="Recent uploads">
+          <h2>Recent uploads</h2>
+          <div id="uploadsList" class="uploads-list" role="list"></div>
+          <p id="noUploads" class="muted">You haven't uploaded anything yet.</p>
+        </section>
+      </div>
+
+      <section class="card" aria-label="Output" id="outputCard">
+        <h2>Output</h2>
+        <p id="outputIntro" class="muted">Select a report to view the output below.</p>
+        <div id="outputArea" class="output-area" aria-live="polite"></div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p class="small">All activity is saved locally in your browser for this demo.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
