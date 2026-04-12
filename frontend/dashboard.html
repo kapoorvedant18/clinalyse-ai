@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard · Clinalyse AI</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ── Diagnosis Banner */
+    .result-banner {
+      display:flex; align-items:center; gap:1.2rem;
+      background:linear-gradient(135deg,#f0f9ff,#e0f2fe);
+      border:1.5px solid #bae6fd; border-radius:12px;
+      padding:1.2rem 1.4rem; margin-bottom:1.5rem;
+    }
+    .result-icon { font-size:2.8rem; line-height:1; }
+    .result-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:#64748b; }
+    .result-diagnosis { font-size:1.6rem; font-weight:700; color:#0f172a; margin:0.1rem 0; }
+    .result-confidence { font-size:0.95rem; font-weight:600; }
+    .result-warning { font-size:0.85rem; color:#b45309; margin-top:0.3rem; }
+
+    /* ── Gemini Summary */
+    .summary-section {
+      background:#fefce8; border:1.5px solid #fde68a;
+      border-radius:12px; padding:1.2rem 1.4rem; margin-bottom:1.5rem;
+    }
+    .summary-section h3 {
+      font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em;
+      color:#92400e; margin-bottom:0.7rem; border-bottom:1px solid #fde68a; padding-bottom:0.4rem;
+    }
+    .summary-section h4 {
+      font-size:0.78rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:0.06em; color:#92400e; margin:0.9rem 0 0.4rem;
+    }
+    .summary-conclusion { font-size:0.93rem; color:#1c1917; line-height:1.6; margin:0; }
+    .summary-steps { margin:0; padding-left:1.3rem; }
+    .summary-steps li { font-size:0.9rem; color:#292524; line-height:1.6; margin-bottom:0.3rem; }
+
+    /* ── Probability Bars */
+    .prob-section { margin-bottom:1.5rem; }
+    .prob-section h3, .feat-section h3 {
+      font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em;
+      color:#64748b; margin-bottom:0.8rem; border-bottom:1px solid #e2e8f0; padding-bottom:0.4rem;
+    }
+    .prob-bars { display:flex; flex-direction:column; gap:0.45rem; }
+    .prob-row  { display:flex; align-items:center; gap:0.7rem; }
+    .prob-label { width:160px; font-size:0.82rem; color:#475569; text-align:right; flex-shrink:0; }
+    .prob-label-top { font-weight:700; color:#0f172a; }
+    .prob-track { flex:1; background:#f1f5f9; border-radius:99px; height:10px; overflow:hidden; }
+    .prob-fill  { height:100%; background:#94a3b8; border-radius:99px; transition:width 0.4s ease; }
+    .prob-fill-top { background:linear-gradient(90deg,#2563eb,#0ea5e9); }
+    .prob-pct   { width:44px; font-size:0.78rem; color:#64748b; }
+
+    /* ── Feature Tables */
+    .feat-section { margin-bottom:1rem; }
+    .feat-group   { margin-bottom:1rem; }
+    .feat-group-title {
+      font-size:0.78rem; font-weight:600; text-transform:uppercase;
+      letter-spacing:0.06em; color:#2563eb; margin-bottom:0.4rem;
+    }
+    .feat-table { width:100%; border-collapse:collapse; font-size:0.88rem; }
+    .feat-table td { padding:0.3rem 0.6rem; border-bottom:1px solid #f1f5f9; color:#334155; }
+    .feat-table td:first-child { color:#64748b; width:45%; }
+    .feat-table td strong { color:#0f172a; }
+    .feat-unit { font-size:0.78rem; color:#94a3b8; margin-left:2px; }
+
+    /* Override pre-wrap for HTML rendering */
+    #outputArea { white-space:normal !important; font-family:inherit !important; font-size:inherit !important; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">Clinalyse AI</a>
+      <nav class="nav">
+        <button id="logoutBtn" class="text-btn">Log out</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="dashboard">
+      <div class="dashboard-header">
+        <div>
+          <h1 id="greeting">Hello!</h1>
+          <p class="muted">Upload a medical report PDF to receive an AI-powered analysis.</p>
+        </div>
+        <div class="profile">
+          <span class="profile-badge" aria-hidden="true">👤</span>
+          <span id="profileEmail" class="profile-email"></span>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <section class="card" aria-label="Upload report">
+          <h2>Upload a report</h2>
+          <p>Select a medical report PDF and our model will analyze it instantly.</p>
+          <form id="uploadForm" class="form" autocomplete="off">
+            <label for="reportFile">Choose PDF</label>
+            <input id="reportFile" name="reportFile" type="file" accept="application/pdf" required />
+            <button type="submit" class="primary-btn">Upload &amp; Analyze</button>
+          </form>
+        </section>
+
+        <section class="card" aria-label="Recent uploads">
+          <h2>Recent uploads</h2>
+          <div id="uploadsList" class="uploads-list" role="list"></div>
+          <p id="noUploads" class="muted">No uploads yet.</p>
+        </section>
+      </div>
+
+      <section class="card" aria-label="Output" id="outputCard">
+        <h2>Analysis Output</h2>
+        <p id="outputIntro" class="muted">Upload a report or select a previous one to view its output.</p>
+        <div id="outputArea" class="output-area" aria-live="polite"></div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p class="small">Clinalyse AI is not a substitute for professional medical advice.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
