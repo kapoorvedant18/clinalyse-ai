@@ -7,6 +7,8 @@ import lightgbm as lgb
 from google import genai
 from google.genai import types
 import json
+import os
+from dotenv import load_dotenv  
 
 app = Flask(__name__)
 CORS(app)
@@ -48,8 +50,9 @@ Keys: {json.dumps(RAW_FEATURES)}
 
 Return ONLY the JSON. No explanation. No markdown. No code fences.
 """
+load_dotenv()
 
-GEMINI_API_KEY = "AIzaSyDbBUcV3M86d9vhHivdzAioNlvP1AQVlGY"
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 
 def build_input_vector(extracted: dict) -> pd.DataFrame:
