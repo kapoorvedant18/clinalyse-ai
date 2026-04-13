@@ -1,4 +1,3 @@
-/* ---------- Base ---------- */
 :root {
   --bg: #f8fafc;
   --surface: #ffffff;
@@ -41,7 +40,6 @@ main {
   flex-direction: column;
 }
 
-/* make full-height pages fill available viewport space */
 main > section {
   flex: 1;
 }
@@ -51,7 +49,6 @@ a {
   text-decoration: none;
 }
 
-/* ---------- Layout ---------- */
 .container {
   max-width: 1280px;
   margin: 0 auto;

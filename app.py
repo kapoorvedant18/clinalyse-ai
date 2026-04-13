@@ -11,16 +11,13 @@ import json
 app = Flask(__name__)
 CORS(app)
 
-# ── Load model
 model = lgb.Booster(model_file="blood_disorder_lgbm.txt")
 
-# ── Load label encoder and feature columns
 with open("label_encoder.pkl", "rb") as f:
     le = pickle.load(f)
 with open("feature_cols.pkl", "rb") as f:
     feature_cols = pickle.load(f)
 
-# ── Raw features (74)
 RAW_FEATURES = [
     "age", "gender",
     "fasting_glucose", "HbA1c", "HOMA_IR",
@@ -52,7 +49,7 @@ Keys: {json.dumps(RAW_FEATURES)}
 Return ONLY the JSON. No explanation. No markdown. No code fences.
 """
 
-GEMINI_API_KEY = "AIzaSyBqJHzxThHzc0kXZtDumarb1dkhOUng3tU"
+GEMINI_API_KEY = "AIzaSyDbBUcV3M86d9vhHivdzAioNlvP1AQVlGY"
 
 
 def build_input_vector(extracted: dict) -> pd.DataFrame:
@@ -77,7 +74,6 @@ def generate_summary(client, prediction: str, confidence: float, extracted: dict
     based on the model prediction and extracted lab values.
     Returns {"conclusion": "...", "next_steps": ["...", "..."]}
     """
-    # Build a readable summary of extracted values for the prompt
     non_null = {k: v for k, v in extracted.items() if v is not None}
     values_text = ", ".join(f"{k}={v}" for k, v in non_null.items())
 
@@ -128,7 +124,6 @@ def predict():
 
     pdf_bytes = request.files[file_key].read()
 
-    # ── 1. Extract features from PDF via Gemini
     try:
         client = genai.Client(api_key=GEMINI_API_KEY)
         response = client.models.generate_content(
@@ -148,7 +143,6 @@ def predict():
     except Exception as e:
         return jsonify({"error": f"Gemini extraction failed: {str(e)}"}), 500
 
-    # ── 2. Build input vector and run model
     try:
         df_input = build_input_vector(extracted)
     except Exception as e:
@@ -163,7 +157,6 @@ def predict():
     except Exception as e:
         return jsonify({"error": f"Model prediction failed: {str(e)}"}), 500
 
-    # ── 3. Generate clinical summary via Gemini (second call)
     summary = generate_summary(client, pred_class, confidence, extracted)
 
     return jsonify({

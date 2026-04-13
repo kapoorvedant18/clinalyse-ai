@@ -17,7 +17,6 @@ function formatTimestamp(ts) {
   return new Date(ts).toLocaleString([], { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" });
 }
 
-// ── Units map for all 74 features
 const UNITS = {
   age: "years", gender: "",
   fasting_glucose: "mg/dL", HbA1c: "%", HOMA_IR: "", RBS: "mg/dL", PPG: "mg/dL",
@@ -77,7 +76,6 @@ function formatOutput(result) {
   const icon      = CLASS_ICONS[prediction] || "🔍";
   const confColor = confidence >= 80 ? "#16a34a" : confidence >= 50 ? "#d97706" : "#dc2626";
 
-  // ── 1. Diagnosis banner
   let html = `
     <div class="result-banner">
       <div class="result-icon">${icon}</div>
@@ -89,7 +87,6 @@ function formatOutput(result) {
       </div>
     </div>`;
 
-  // ── 2. Gemini summary
   if (summary) {
     const { conclusion = "", next_steps = [] } = summary;
     const stepsHtml = next_steps.map(s => `<li>${s}</li>`).join("");
@@ -101,7 +98,6 @@ function formatOutput(result) {
       </div>`;
   }
 
-  // ── 3. Probability bars
   const sortedProbs = Object.entries(allProbs).sort((a,b) => b[1]-a[1]);
   html += `<div class="prob-section"><h3>All Class Probabilities</h3><div class="prob-bars">`;
   for (const [cls, prob] of sortedProbs) {
@@ -116,7 +112,6 @@ function formatOutput(result) {
   }
   html += `</div></div>`;
 
-  // ── 4. Extracted lab values with units
   let hasAny = false;
   let featHtml = `<div class="feat-section"><h3>Extracted Lab Values</h3>`;
   for (const [group, keys] of Object.entries(FEATURE_GROUPS)) {
